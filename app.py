@@ -128,4 +128,4 @@ def uploaded_file(filename):
 if __name__ == '__main__':
     with app.app_context():
         db.create_all() # Tự động tạo file database nếu chưa có
-    app.run(port=3000, debug=True)
+    app.run(port=5000, debug=True)
