@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="bg-[#1C1C1E] p-4 rounded-3xl mb-8 shadow-lg border border-gray-800">
+        <form action="/upload" method="POST" enctype="multipart/form-data" class="flex flex-col gap-3">
+            <textarea name="caption" placeholder="Bạn đang nghĩ gì thế?..." 
+                      class="w-full bg-black rounded-xl p-3 text-white border border-gray-700 focus:outline-none focus:border-[#FFB800] text-sm resize-none" rows="2"></textarea>
+            
+            <div class="flex justify-between items-center mt-1">
+                <label class="group cursor-pointer flex items-center gap-2 bg-gray-800 hover:bg-gray-700 px-3 py-2 rounded-xl transition">
+                    <i class="fa-solid fa-image text-[#FFB800] text-lg group-hover:scale-110 transition"></i> 
+                    <span class="text-xs font-bold text-gray-300">Ảnh</span>
+                    <input type="file" name="file" class="hidden" onchange="document.getElementById('fname').innerText = '✔️ Đã chọn'">
+                </label>
+                <span id="fname" class="text-xs text-[#FFB800] font-bold animate-pulse"></span>
+                <button type="submit" class="bg-[#FFB800] text-black font-bold px-6 py-2 rounded-full text-sm hover:scale-105 transition shadow-[0_0_15px_rgba(255,184,0,0.4)]">
+                    Gửi Locket
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% for post in posts %}
+    <div class="bg-black rounded-[32px] overflow-hidden mb-10 border border-gray-800 shadow-2xl relative">
+        
+        <div class="p-4 flex justify-between items-start absolute top-0 left-0 right-0 bg-gradient-to-b from-black/60 to-transparent z-10">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-[#FFB800] rounded-full flex items-center justify-center font-black text-black text-lg border-2 border-white shadow-lg">
+                    {{ post.author.username[0] | upper }}
+                </div>
+                <div>
+                    <p class="font-bold text-white text-sm drop-shadow-md">{{ post.author.username }}</p>
+                    <p class="text-[10px] text-gray-300 drop-shadow-md bg-black/30 px-2 py-0.5 rounded-full inline-block backdrop-blur-sm">{{ post.timestamp }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative aspect-[3/4] w-full">
+            <img src="{{ url_for('uploaded_file', filename=post.filename) }}" class="absolute inset-0 w-full h-full object-cover">
+            
+            {% if post.content %}
+            <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black/70 to-transparent pt-10">
+                <p class="text-white text-base font-medium leading-snug drop-shadow-sm">
+                    {{ post.content }}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="p-4 bg-[#1C1C1E]">
+            <div class="flex gap-4 mb-4">
+                <button class="text-[#FFB800] text-2xl hover:scale-110 transition"><i class="fa-solid fa-heart"></i></button>
+                <button onclick="document.getElementById('chat-{{ post.id }}').focus()" class="text-white text-2xl hover:text-[#FFB800] transition"><i class="fa-regular fa-comment-dots"></i></button>
+            </div>
+
+            {% if post.comments %}
+            <div class="flex flex-col gap-3 mb-4 max-h-40 overflow-y-auto scrollbar-hide">
+                {% for comment in post.comments %}
+                <div class="flex gap-2 items-start group">
+                    <span class="font-bold text-gray-400 text-xs mt-1 whitespace-nowrap">{{ comment.author.username }}</span>
+                    <div class="bg-gray-800 rounded-2xl rounded-tl-none px-3 py-2 max-w-[80%]">
+                        <p class="text-gray-200 text-sm">{{ comment.content }}</p>
+                        <p class="text-[10px] text-gray-500 mt-1 text-right">{{ comment.timestamp }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form action="/comment/{{ post.id }}" method="POST" class="relative">
+                <input id="chat-{{ post.id }}" type="text" name="content" placeholder="Gửi tin nhắn..." autocomplete="off"
+                       class="w-full bg-black rounded-full pl-4 pr-12 py-3 text-sm text-white focus:outline-none border border-gray-700 focus:border-[#FFB800] transition">
+                <button type="submit" class="absolute right-1 top-1 bottom-1 w-10 h-10 bg-[#FFB800] rounded-full flex items-center justify-center text-black hover:scale-105 transition">
+                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <div class="flex flex-col items-center justify-center py-20 text-gray-600 opacity-50">
+        <i class="fa-solid fa-camera-retro text-6xl mb-4"></i>
+        <p>Locket đang trống trơn...</p>
+        <p class="text-sm">Hãy là người đầu tiên đăng ảnh!</p>
+    </div>
+    {% endfor %}
+{% endblock %}
